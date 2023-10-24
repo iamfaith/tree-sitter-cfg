@@ -10,7 +10,10 @@ class BaseVisitor:
         return getattr(self, f"visit_{n.type}", self.visit_default)(n=n, indentation_level=indentation_level, **kwargs)
     
     def visit_children(self, n, indentation_level, **kwargs):
-        for c in n.children:
+        for idx, c in enumerate(n.children):
+            # for debug
+            # if idx == 1:
+            #     print("--")
             should_continue = self.visit(c, indentation_level+1, parent=n, siblings=n.children)
             if should_continue == False:
                 break

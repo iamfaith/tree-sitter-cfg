@@ -4,7 +4,7 @@ import networkx as nx
 def assert_boolean_expression(n):
     assert n.type.endswith("_statement") or n.type.endswith("_expression") or n.type in ("true", "false", "identifier"), n.type
 def assert_branch_target(n):
-    assert n.type.endswith("_statement") or n.type.endswith("_expression") or n.type in ("else",), n.type
+    assert n.type.endswith("_statement") or n.type.endswith("_expression") or n.type in ("else", "else_clause"), n.type
 
 class CFGCreator(BaseVisitor):
     """
@@ -63,16 +63,20 @@ class CFGCreator(BaseVisitor):
     """
 
     def visit_function_definition(self, n, **kwargs):
+        ##########################  comment out
         entry_id = self.add_cfg_node(n, "FUNC_ENTRY")
         self.cfg.graph["entry"] = entry_id
         self.fringe.append(entry_id)
+        ##########################  comment out
         self.visit_children(n, **kwargs)
+        ##########################  comment out
         exit_id = self.add_cfg_node(n, "FUNC_EXIT")
         self.add_edge_from_fringe_to(exit_id)
         for n in nx.descendants(self.cfg, entry_id):
             attr = self.cfg.nodes[n]
             if attr.get("n", None) is not None and attr["n"].type == "return_statement":
                 self.cfg.add_edge(n, exit_id)
+        ##########################  comment out
 
     def visit_default(self, n, indentation_level, **kwargs):
         self.visit_children(n, indentation_level)
@@ -107,9 +111,9 @@ class CFGCreator(BaseVisitor):
         # NOTE: this assert doesn't work in the case of an if with an empty else
         # assert len(self.fringe) == 1, "fringe should now have last statement of compound_statement"
 
-        if n.children is not None and len(n.children) > 4:
+        if n.children is not None and n.children[-1].type == 'else_clause':
             # print("------------------------------", type(n.children), n.children[3], len(n.children))
-            else_compound_statement = n.children[4]
+            else_compound_statement = n.children[-1]
             assert_branch_target(else_compound_statement)
             old_fringe = self.fringe
             self.fringe = [condition_id]

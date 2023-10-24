@@ -107,7 +107,8 @@ class CFGCreator(BaseVisitor):
         # NOTE: this assert doesn't work in the case of an if with an empty else
         # assert len(self.fringe) == 1, "fringe should now have last statement of compound_statement"
 
-        if len(n.children) > 3:
+        if n.children is not None and len(n.children) > 4:
+            # print("------------------------------", type(n.children), n.children[3], len(n.children))
             else_compound_statement = n.children[4]
             assert_branch_target(else_compound_statement)
             old_fringe = self.fringe

@@ -8,6 +8,9 @@ AST -> CFG algorithm is based on Joern, specifically [CfgCreator.scala](https://
 Clone [https://github.com/tree-sitter/tree-sitter-c.git](https://github.com/tree-sitter/tree-sitter-c.git) in the project root.
 Then run `python main.py tests/data/example.c --print_ast --cfg --draw`
 
+
+/home/faith/miniconda3/envs/torch_cuda_11.3/bin/python main.py tests/data/example.c --print_ast --cfg --draw
+
 # Contribue
 
 Open issues: [roadmap.md](./roadmap.md)

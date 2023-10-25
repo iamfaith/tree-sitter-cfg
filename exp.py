@@ -68,6 +68,35 @@ print(data.label, data.entry)
 print(data.n)
 print(data.edge_index)
 # %%
+print(data.n[0], data.label[0])
+from torch_geometric.utils import to_networkx
+def visualize_graph(G, color):
+    plt.figure(figsize=(18, 18))
+    plt.xticks([])
+    plt.yticks([])
+    nx.draw_networkx(
+        G, pos=nx.spring_layout(G, seed=42),
+        labels={n: attr.get("label", "<NO LABEL>") for n, attr in cfg.nodes(data=True)}, node_color=color, cmap="Set2")
+    plt.show()
+G = to_networkx(data, to_undirected=True)
+visualize_graph(G, color=data.y)
+
+# %%
+for n, attr in cfg.nodes(data=True):
+    code = attr['n'].text.decode()
+    # print(n, code)
+    attr['n'] = code
+
+for n, attr in cfg.nodes(data=True):
+    print(n, attr)  
+data = from_networkx(cfg)
+print(data)
+print(data.n)
+import torch
+torch.save(data, "cfg.pt")
+# import dill
+# torch.save(data, "cfg.pt", pickle_module=dill)
+# %%
 
 import torch
 # 创建一个nx.DiGraph()对象G
@@ -90,4 +119,13 @@ data = from_networkx(G)
 print(data)
 print(data.x)
 print(data.edge_index)
+# %%
+import numpy as np
+import torch
+l = [i for i in range(2 * 40)]
+
+l = np.array(l).reshape(2, 40)
+l = torch.tensor(l)
+print(l)
+print(l.ne(1))
 # %%

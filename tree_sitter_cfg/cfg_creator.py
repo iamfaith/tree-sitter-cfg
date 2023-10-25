@@ -45,10 +45,12 @@ class CFGCreator(BaseVisitor):
         self.node_id += 1
         return node_id
     
-    def add_cfg_node(self, ast_node, label=None):
+    def add_cfg_node(self, ast_node, label=None, addNodeId2Label=False):
         node_id = self.node_id
         if label is None:
             label = f"{node_id}: {ast_node.type} ({ast_node.start_point}, {ast_node.end_point})\n`{ast_node.text.decode()}`"
+        elif addNodeId2Label:
+            label = f"{node_id}: {label}"
         self.cfg.add_node(node_id, n=ast_node, label=label)
         self.node_id += 1
         return node_id
@@ -63,19 +65,30 @@ class CFGCreator(BaseVisitor):
     """
 
     def visit_function_definition(self, n, **kwargs):
+        label = "FUNC_ENTRY"
+        entry_node = n
+        if n.children is not None and len(n.children) > 0:
+            for node in n.children:
+                if node.type == 'function_declarator':
+                    label = node.text.decode()
+                    entry_node = node
+                    break
+        
         ##########################  comment out
-        entry_id = self.add_cfg_node(n, "FUNC_ENTRY")
+        entry_id = self.add_cfg_node(entry_node, label, addNodeId2Label=True)
         self.cfg.graph["entry"] = entry_id
         self.fringe.append(entry_id)
         ##########################  comment out
         self.visit_children(n, **kwargs)
+
+        self.fringe = [] # finish definition        
         ##########################  comment out
-        exit_id = self.add_cfg_node(n, "FUNC_EXIT")
-        self.add_edge_from_fringe_to(exit_id)
-        for n in nx.descendants(self.cfg, entry_id):
-            attr = self.cfg.nodes[n]
-            if attr.get("n", None) is not None and attr["n"].type == "return_statement":
-                self.cfg.add_edge(n, exit_id)
+        # exit_id = self.add_cfg_node(n, "FUNC_EXIT")
+        # self.add_edge_from_fringe_to(exit_id)
+        # for n in nx.descendants(self.cfg, entry_id):
+        #     attr = self.cfg.nodes[n]
+        #     if attr.get("n", None) is not None and attr["n"].type == "return_statement":
+        #         self.cfg.add_edge(n, exit_id)
         ##########################  comment out
 
     def visit_default(self, n, indentation_level, **kwargs):
